@@ -1,5 +1,11 @@
 // registering a component
 Vue.component('product', {
+    props: {
+        premium : {
+            type : Boolean,
+            required : true
+        }
+    },
     template : `
     <div class="product">
         <div class="product-image">
@@ -18,9 +24,10 @@ Vue.component('product', {
                 <span :class = "{striked : !isInStock}">In Stock</span>
                 Out Of Stock
             </p>
-            <ul>
-                <li v-for = "detail in details"> {{detail}} </li>
-            </ul>
+
+            <p>Shipping : {{shipping}}</p>
+
+            <product-details :details = "details"></product-details>
             <div v-for = "(variant, index) in  variants" 
                 :key= "variant.variantId"
                 @mouseover = "updateProduct(index)"
@@ -61,6 +68,12 @@ Vue.component('product', {
         },
         isInStock() {
             return this.variants[this.selectedVariant]['variantQty']
+        },
+        shipping(){
+            if(this.premium){
+                return 'free';
+            }
+            return '200';
         }
     },
     methods : {
@@ -73,6 +86,23 @@ Vue.component('product', {
     }
 })
 
+Vue.component('product-details', {
+    props: {
+        details: {
+          type: Array,
+          required: true
+        }
+      },
+    template: `
+    <ul>
+        <li v-for = "detail in details"> {{detail}} </li>
+    </ul>
+    `
+})
+
 var app = new Vue({
-    el : '#app'
+    el: '#app',
+    data: {
+        premium : false
+    }
 });

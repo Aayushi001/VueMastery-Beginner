@@ -1,3 +1,5 @@
+var eventBus = new Vue();
+
 // registering a component
 Vue.component('product', {
     props: {
@@ -37,16 +39,7 @@ Vue.component('product', {
             <button v-on:click = "addToCart()" :disabled = "!isInStock" :class = "{disabledButton : !isInStock}">Add To Cart</button>
             <button style = "width : 40%" v-on:click = "removeFromCart()">Remove From Cart</button>
         </div>
-        <div>
-            <h2>Reviews</h2>
-            <p v-if = "!reviews.length">There are no reviews yet! </p>
-            <ul>
-                <li v-for = "review in reviews">
-                <b>{{review.name}}</b> says <span>{{review.review}}</span>
-                </li>
-            </ul>
-            <product-review @add-product-review = "addReview($event)"></product-review>
-        </div>
+        <product-tabs :reviews = "reviews"></product-tabs>
     </div>
     `,
     data(){
@@ -90,12 +83,14 @@ Vue.component('product', {
         removeFromCart: function() {
             this.$emit('remove-from-cart', this.variants[this.selectedVariant]['variantId']);
         },
-        addReview(review){
-            this.reviews.push(review)
-        },
         updateProduct: function(index){
             this.selectedVariant = index;
         } 
+    },
+    mounted(){
+        eventBus.$on('add-product-review', productReview => {
+            this.reviews.push(productReview);
+        })
     }
 })
 
@@ -156,7 +151,39 @@ Vue.component('product-review', {
             this.name = null
             this.review = null
             this.rating = null
-            this.$emit('add-product-review', productReview)
+            eventBus.$emit('add-product-review', productReview)
+        }
+    }
+})
+
+Vue.component('product-tabs', {
+    props : {
+        reviews : {
+            type: Array,
+            required: true
+        }
+    },
+    template: `
+    <div>
+        <span v-for = "tab in tabs" class = "tab" @click = "selectedTab = tab" :class = "{activeTab : selectedTab === tab}">{{tab}}</span>
+        <div v-if = "selectedTab === 'Reviews'">
+            <h2>Reviews</h2>
+            <p v-if = "!reviews.length">There are no reviews yet! </p>
+            <ul>
+                <li v-for = "review in reviews">
+                <b>{{review.name}}</b> says <span>{{review.review}}</span>
+                </li>
+            </ul>
+        </div>
+        <div v-else>
+            <product-review @add-product-review = "addReview($event)"></product-review>
+        </div>
+    </div>
+    `,
+    data(){
+        return {
+            tabs: ['Reviews', 'Add a review'],
+            selectedTab: 'Reviews'
         }
     }
 })

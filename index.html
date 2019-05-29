@@ -7,7 +7,10 @@
     <body>
         <div id="app">
             <div class="nav-bar"></div>
-            <product :premium = "premium"></product>
+            <div class="cart">
+                <p>{{cart.length}}</p>
+            </div>
+            <product :premium = "premium" @add-to-cart = "updateCart($event)" @remove-from-cart = "removeFromCart($event)"></product>
         </div>
         <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
         <script src = "main.js"></script>

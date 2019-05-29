@@ -35,10 +35,7 @@ Vue.component('product', {
                 :style = "{'background-color' : variant.variantColor}">
             </div>
             <button v-on:click = "addToCart()" :disabled = "!isInStock" :class = "{disabledButton : !isInStock}">Add To Cart</button>
-
-            <div class="cart">
-                <p>{{cart}}</p>
-            </div>
+            <button style = "width : 40%" v-on:click = "removeFromCart()">Remove From Cart</button>
         </div>
     </div>
     `,
@@ -54,8 +51,7 @@ Vue.component('product', {
             details : ["80% Cotton", "20% Polyester", "Gender Neutral"],
             variants : [{variantId : "2234", variantColor : "green", variantImage : "./assets/green-socks.jpg", variantQty : 10},
                         {variantId : "2235", variantColor : "blue", variantImage : "./assets/blue-socks.jpg", variantQty : 0}    
-                       ],
-            cart : 0
+                       ]
             
         }
     },
@@ -78,7 +74,10 @@ Vue.component('product', {
     },
     methods : {
         addToCart: function() {
-            this.cart += 1;
+            this.$emit('add-to-cart', this.variants[this.selectedVariant]['variantId']);
+        },
+        removeFromCart: function() {
+            this.$emit('remove-from-cart', this.variants[this.selectedVariant]['variantId']);
         },
         updateProduct: function(index){
             this.selectedVariant = index;
@@ -103,6 +102,16 @@ Vue.component('product-details', {
 var app = new Vue({
     el: '#app',
     data: {
-        premium : false
+        premium : false,
+        cart : []
+    },
+    methods: {
+        updateCart(id){
+            this.cart.push(id);
+        },
+        removeFromCart(id){
+            let index = this.cart.indexOf(id);
+            this.cart.splice(index, 1);
+        }
     }
 });
